@@ -24,6 +24,7 @@ const db = getFirestore(app);
 
 const talleres = [];
 const reservas = [];
+
 const inventario = {
 insumos: [],
 herramientas: []
@@ -36,7 +37,8 @@ sec.classList.remove('activa');
 });
 
 document.getElementById(id).classList.add('activa');
-}
+
+};
 
 window.crearTaller = async function(){
 
@@ -52,7 +54,8 @@ nombre:nombre
 });
 
 document.getElementById('nuevoTaller').value='';
-}
+
+};
 
 window.guardarReserva = async function(){
 
@@ -76,7 +79,7 @@ fecha,
 hora
 });
 
-}
+};
 
 window.agregarInsumo = async function(){
 
@@ -97,7 +100,7 @@ nombre,
 cantidad
 });
 
-}
+};
 
 window.agregarHerramienta = async function(){
 
@@ -118,7 +121,58 @@ nombre,
 estado
 });
 
-}
+};
+
+window.exportarExcel = function(){
+
+const workbook = XLSX.utils.book_new();
+
+const wsReservas =
+XLSX.utils.json_to_sheet(reservas);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsReservas,
+"Reservas"
+);
+
+const talleresExcel = talleres.map(t=>({
+taller:t.nombre
+}));
+
+const wsTalleres =
+XLSX.utils.json_to_sheet(talleresExcel);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsTalleres,
+"Talleres"
+);
+
+const wsInsumos =
+XLSX.utils.json_to_sheet(inventario.insumos);
+
+const wsHerramientas =
+XLSX.utils.json_to_sheet(inventario.herramientas);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsInsumos,
+"Insumos"
+);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsHerramientas,
+"Herramientas"
+);
+
+XLSX.writeFile(
+workbook,
+"sistema_talleres.xlsx"
+);
+
+};
 
 onSnapshot(collection(db,"talleres"),(snapshot)=>{
 
@@ -182,7 +236,8 @@ mostrarInventario();
 
 function actualizarTalleres(){
 
-const lista = document.getElementById('listaTalleres');
+const lista =
+document.getElementById('listaTalleres');
 
 lista.innerHTML='';
 
@@ -195,6 +250,7 @@ ${t.nombre}
 `;
 
 });
+
 }
 
 function actualizarSelects(){
@@ -222,7 +278,8 @@ select.innerHTML += `
 
 function actualizarReservas(){
 
-const tabla = document.getElementById('tablaReservas');
+const tabla =
+document.getElementById('tablaReservas');
 
 tabla.innerHTML='';
 
@@ -243,11 +300,14 @@ tabla.innerHTML += `
 
 function mostrarInventario(){
 
-const taller = document.getElementById('inventarioTaller').value;
+const taller =
+document.getElementById('inventarioTaller').value;
 
-const listaInsumos = document.getElementById('listaInsumos');
+const listaInsumos =
+document.getElementById('listaInsumos');
 
-const listaHerramientas = document.getElementById('listaHerramientas');
+const listaHerramientas =
+document.getElementById('listaHerramientas');
 
 listaInsumos.innerHTML='';
 listaHerramientas.innerHTML='';
@@ -296,54 +356,5 @@ reservas.length;
 
 document.getElementById('totalInsumos').innerText =
 inventario.insumos.length;
-
-}
-
-window.exportarExcel = function(){
-
-const workbook = XLSX.utils.book_new();
-
-const wsReservas = XLSX.utils.json_to_sheet(reservas);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsReservas,
-"Reservas"
-);
-
-const talleresExcel = talleres.map(t=>({
-taller:t.nombre
-}));
-
-const wsTalleres = XLSX.utils.json_to_sheet(talleresExcel);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsTalleres,
-"Talleres"
-);
-
-const wsInsumos =
-XLSX.utils.json_to_sheet(inventario.insumos);
-
-const wsHerramientas =
-XLSX.utils.json_to_sheet(inventario.herramientas);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsInsumos,
-"Insumos"
-);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsHerramientas,
-"Herramientas"
-);
-
-XLSX.writeFile(
-workbook,
-"sistema_talleres.xlsx"
-);
 
 }
