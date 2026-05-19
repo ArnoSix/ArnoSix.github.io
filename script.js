@@ -1,27 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-getFirestore,
-collection,
-addDoc,
-onSnapshot
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-
-apiKey: "PEGA_TU_APIKEY",
-authDomain: "TU_PROYECTO.firebaseapp.com",
-projectId: "TU_PROYECTO",
-storageBucket: "TU_PROYECTO.appspot.com",
-messagingSenderId: "123456",
-appId: "APP_ID"
-
-};
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
 const talleres = [];
 const reservas = [];
 
@@ -30,7 +6,7 @@ insumos: [],
 herramientas: []
 };
 
-window.mostrarSeccion = function(id){
+function mostrarSeccion(id){
 
 document.querySelectorAll('.seccion').forEach(sec=>{
 sec.classList.remove('activa');
@@ -38,201 +14,113 @@ sec.classList.remove('activa');
 
 document.getElementById(id).classList.add('activa');
 
-};
+}
 
-window.crearTaller = async function(){
+function crearTaller(){
 
-const nombre = document.getElementById('nuevoTaller').value;
+const nombre =
+document.getElementById('nuevoTaller').value;
 
 if(!nombre){
 alert('Ingresa nombre');
 return;
 }
 
-await addDoc(collection(db,"talleres"),{
+talleres.push({
 nombre:nombre
-});
-
-document.getElementById('nuevoTaller').value='';
-
-};
-
-window.guardarReserva = async function(){
-
-const taller = document.getElementById('reservaTaller').value;
-
-const docente = document.getElementById('docente').value;
-
-const fecha = document.getElementById('fecha').value;
-
-const hora = document.getElementById('hora').value;
-
-if(!docente || !fecha || !hora){
-alert('Completa los campos');
-return;
-}
-
-await addDoc(collection(db,"reservas"),{
-taller,
-docente,
-fecha,
-hora
-});
-
-};
-
-window.agregarInsumo = async function(){
-
-const taller = document.getElementById('inventarioTaller').value;
-
-const nombre = document.getElementById('nombreInsumo').value;
-
-const cantidad = document.getElementById('cantidadInsumo').value;
-
-if(!nombre || !cantidad){
-alert('Completa los campos');
-return;
-}
-
-await addDoc(collection(db,"insumos"),{
-taller,
-nombre,
-cantidad
-});
-
-};
-
-window.agregarHerramienta = async function(){
-
-const taller = document.getElementById('inventarioTaller').value;
-
-const nombre = document.getElementById('nombreHerramienta').value;
-
-const estado = document.getElementById('estadoHerramienta').value;
-
-if(!nombre){
-alert('Completa los campos');
-return;
-}
-
-await addDoc(collection(db,"herramientas"),{
-taller,
-nombre,
-estado
-});
-
-};
-
-window.exportarExcel = function(){
-
-const workbook = XLSX.utils.book_new();
-
-const wsReservas =
-XLSX.utils.json_to_sheet(reservas);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsReservas,
-"Reservas"
-);
-
-const talleresExcel = talleres.map(t=>({
-taller:t.nombre
-}));
-
-const wsTalleres =
-XLSX.utils.json_to_sheet(talleresExcel);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsTalleres,
-"Talleres"
-);
-
-const wsInsumos =
-XLSX.utils.json_to_sheet(inventario.insumos);
-
-const wsHerramientas =
-XLSX.utils.json_to_sheet(inventario.herramientas);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsInsumos,
-"Insumos"
-);
-
-XLSX.utils.book_append_sheet(
-workbook,
-wsHerramientas,
-"Herramientas"
-);
-
-XLSX.writeFile(
-workbook,
-"sistema_talleres.xlsx"
-);
-
-};
-
-onSnapshot(collection(db,"talleres"),(snapshot)=>{
-
-talleres.length = 0;
-
-snapshot.forEach(doc=>{
-
-talleres.push(doc.data());
-
 });
 
 actualizarTalleres();
 actualizarSelects();
 actualizarDashboard();
 
-});
+document.getElementById('nuevoTaller').value='';
 
-onSnapshot(collection(db,"reservas"),(snapshot)=>{
+}
 
-reservas.length = 0;
+function guardarReserva(){
 
-snapshot.forEach(doc=>{
+const taller =
+document.getElementById('reservaTaller').value;
 
-reservas.push(doc.data());
+const docente =
+document.getElementById('docente').value;
 
+const fecha =
+document.getElementById('fecha').value;
+
+const hora =
+document.getElementById('hora').value;
+
+if(!docente || !fecha || !hora){
+alert('Completa campos');
+return;
+}
+
+reservas.push({
+taller,
+docente,
+fecha,
+hora
 });
 
 actualizarReservas();
 actualizarDashboard();
 
-});
+}
 
-onSnapshot(collection(db,"insumos"),(snapshot)=>{
+function agregarInsumo(){
 
-inventario.insumos = [];
+const taller =
+document.getElementById('inventarioTaller').value;
 
-snapshot.forEach(doc=>{
+const nombre =
+document.getElementById('nombreInsumo').value;
 
-inventario.insumos.push(doc.data());
+const cantidad =
+document.getElementById('cantidadInsumo').value;
 
+if(!nombre || !cantidad){
+alert('Completa campos');
+return;
+}
+
+inventario.insumos.push({
+taller,
+nombre,
+cantidad
 });
 
 mostrarInventario();
 actualizarDashboard();
 
-});
+}
 
-onSnapshot(collection(db,"herramientas"),(snapshot)=>{
+function agregarHerramienta(){
 
-inventario.herramientas = [];
+const taller =
+document.getElementById('inventarioTaller').value;
 
-snapshot.forEach(doc=>{
+const nombre =
+document.getElementById('nombreHerramienta').value;
 
-inventario.herramientas.push(doc.data());
+const estado =
+document.getElementById('estadoHerramienta').value;
 
+if(!nombre){
+alert('Completa campos');
+return;
+}
+
+inventario.herramientas.push({
+taller,
+nombre,
+estado
 });
 
 mostrarInventario();
 
-});
+}
 
 function actualizarTalleres(){
 
@@ -356,5 +244,56 @@ reservas.length;
 
 document.getElementById('totalInsumos').innerText =
 inventario.insumos.length;
+
+}
+
+function exportarExcel(){
+
+const workbook = XLSX.utils.book_new();
+
+const wsReservas =
+XLSX.utils.json_to_sheet(reservas);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsReservas,
+"Reservas"
+);
+
+const talleresExcel = talleres.map(t=>({
+taller:t.nombre
+}));
+
+const wsTalleres =
+XLSX.utils.json_to_sheet(talleresExcel);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsTalleres,
+"Talleres"
+);
+
+const wsInsumos =
+XLSX.utils.json_to_sheet(inventario.insumos);
+
+const wsHerramientas =
+XLSX.utils.json_to_sheet(inventario.herramientas);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsInsumos,
+"Insumos"
+);
+
+XLSX.utils.book_append_sheet(
+workbook,
+wsHerramientas,
+"Herramientas"
+);
+
+XLSX.writeFile(
+workbook,
+"sistema_talleres.xlsx"
+);
 
 }
